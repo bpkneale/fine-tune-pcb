@@ -18,7 +18,14 @@ loss over. (TRL >=0.13 dropped DataCollatorForCompletionOnlyLM for this.)
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
+
+# Short-circuit transformers' is_wandb_available() before TRL eagerly
+# imports wandb at module-load time. On Kaggle the preinstalled wandb has
+# proto stubs that explode against protobuf<7; we don't use wandb anyway
+# (report_to=[] in SFTConfig).
+os.environ.setdefault("WANDB_DISABLED", "true")
 
 
 def _bnb_available() -> bool:

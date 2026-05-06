@@ -27,15 +27,19 @@ SEED = 0xC0FFEE
 
 def _resolve_input(path: Path) -> Path:
     """Accept either a JSONL file or a directory containing one.
-    Kaggle Datasets mount as directories, so we glob for *.jsonl inside."""
+
+    Kaggle Datasets mount as directories — and the layout has changed
+    between Kaggle versions (sometimes /kaggle/input/<slug>/, sometimes
+    /kaggle/input/datasets/<owner>/<slug>/). Recursive-glob to find the
+    JSONL regardless of nesting."""
     if path.is_file():
         return path
     if path.is_dir():
-        candidates = sorted(path.glob("*.jsonl"))
+        candidates = sorted(path.rglob("*.jsonl"))
         if not candidates:
-            raise SystemExit(f"no *.jsonl files found in {path}")
+            raise SystemExit(f"no *.jsonl files found under {path}")
         if len(candidates) > 1:
-            print(f"warning: multiple *.jsonl in {path}, using {candidates[0].name}")
+            print(f"warning: multiple *.jsonl under {path}, using {candidates[0]}")
         return candidates[0]
     raise SystemExit(f"--in path does not exist: {path}")
 
