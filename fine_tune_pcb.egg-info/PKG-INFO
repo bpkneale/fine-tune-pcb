@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: fine-tune-pcb
+Version: 0.1.0
+Summary: Fine-tune Gemma 4 E4B for PCB component placement
+Requires-Python: >=3.11
+Requires-Dist: kiutils>=1.4.8
+Requires-Dist: requests>=2.32
+Requires-Dist: tqdm>=4.66
+Requires-Dist: tenacity>=8.5
+Requires-Dist: orjson>=3.10
+Requires-Dist: pydantic>=2.8
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
+Requires-Dist: ruff>=0.6; extra == "dev"

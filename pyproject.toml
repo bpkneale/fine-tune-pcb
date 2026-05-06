@@ -1,0 +1,34 @@
+[project]
+name = "fine-tune-pcb"
+version = "0.1.0"
+description = "Fine-tune Gemma 4 E4B for PCB component placement"
+requires-python = ">=3.11"
+
+# Phase 2 (data pipeline) deps only. CPU-side, runs on Windows directly.
+# Training deps (torch-rocm, transformers, peft, trl, bitsandbytes) are
+# installed inside WSL2 in Phase 4 — see env/wsl2-rocm-setup.md.
+dependencies = [
+    "kiutils>=1.4.8",      # KiCad s-expression parser
+    "requests>=2.32",      # GitHub API + downloads
+    "tqdm>=4.66",          # progress bars
+    "tenacity>=8.5",       # retry/backoff for rate limits
+    "orjson>=3.10",        # fast JSON for large dataset writes
+    "pydantic>=2.8",       # board record schema
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

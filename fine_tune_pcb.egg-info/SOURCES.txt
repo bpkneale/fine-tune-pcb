@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+fine_tune_pcb.egg-info/PKG-INFO
+fine_tune_pcb.egg-info/SOURCES.txt
+fine_tune_pcb.egg-info/dependency_links.txt
+fine_tune_pcb.egg-info/requires.txt
+fine_tune_pcb.egg-info/top_level.txt
+src/__init__.py
+src/_gh.py
+src/build_dsl.py
+src/eval_placement.py
+src/export_gguf.py
+src/parse_kicad.py
+src/scrape_github.py
+src/scrape_orgs.py
+src/tokenize_dataset.py
+src/train_lora.py

@@ -1,0 +1,10 @@
+kiutils>=1.4.8
+requests>=2.32
+tqdm>=4.66
+tenacity>=8.5
+orjson>=3.10
+pydantic>=2.8
+
+[dev]
+pytest>=8
+ruff>=0.6
