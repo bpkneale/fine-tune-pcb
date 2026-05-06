@@ -25,6 +25,21 @@ EVAL_FRACTION = 0.05
 SEED = 0xC0FFEE
 
 
+def _resolve_input(path: Path) -> Path:
+    """Accept either a JSONL file or a directory containing one.
+    Kaggle Datasets mount as directories, so we glob for *.jsonl inside."""
+    if path.is_file():
+        return path
+    if path.is_dir():
+        candidates = sorted(path.glob("*.jsonl"))
+        if not candidates:
+            raise SystemExit(f"no *.jsonl files found in {path}")
+        if len(candidates) > 1:
+            print(f"warning: multiple *.jsonl in {path}, using {candidates[0].name}")
+        return candidates[0]
+    raise SystemExit(f"--in path does not exist: {path}")
+
+
 def _read_jsonl(path: Path) -> list[dict]:
     out = []
     with path.open("rb") as f:
@@ -71,7 +86,7 @@ def main() -> int:
     from datasets import Dataset, DatasetDict  # type: ignore
     from transformers import AutoTokenizer  # type: ignore
 
-    records = _read_jsonl(args.inp)
+    records = _read_jsonl(_resolve_input(args.inp))
     print(f"read {len(records)} examples")
     if not records:
         print("nothing to do")
