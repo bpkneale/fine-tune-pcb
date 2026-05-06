@@ -81,7 +81,7 @@ def main() -> int:
 
     import torch  # type: ignore
     from datasets import load_from_disk  # type: ignore
-    from peft import LoraConfig, prepare_model_for_kbit_training  # type: ignore
+    from peft import LoraConfig  # type: ignore
     from transformers import (  # type: ignore
         AutoModelForCausalLM,
         AutoTokenizer,
@@ -128,7 +128,23 @@ def main() -> int:
 
     model = AutoModelForCausalLM.from_pretrained(args.model, **model_kwargs)
     if use_4bit:
-        model = prepare_model_for_kbit_training(model)
+        # NB: do NOT call peft.prepare_model_for_kbit_training here. It
+        # upcasts every non-quantised param to fp32 — for Gemma 4 E4B
+        # (multimodal, 256k vocab + vision tower) that's ~10 GB of extra
+        # fp32 weights and OOMs a T4. We only need the two side-effects:
+        #   (a) the input embedding's output must require grad, so the
+        #       autograd graph reaches the LoRA adapters when grad
+        #       checkpointing reruns the forward, and
+        #   (b) gradient checkpointing enabled.
+        # Both are enabled below; SFTConfig's gradient_checkpointing flag
+        # handles (b) for us, but enable_input_require_grads must be
+        # called explicitly.
+        if hasattr(model, "enable_input_require_grads"):
+            model.enable_input_require_grads()
+        else:
+            def _make_inputs_require_grad(_module, _input, output):
+                output.requires_grad_(True)
+            model.get_input_embeddings().register_forward_hook(_make_inputs_require_grad)
     model.config.use_cache = False  # required when gradient checkpointing is on
 
     # Gemma 4 wraps each nn.Linear in Gemma4ClippableLinear (a clipping
